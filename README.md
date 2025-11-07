@@ -11,7 +11,7 @@ fetch_page <- function(page_num) {
       limit = 1000,
       page = page_num #use the page number passed into the function
     ),
-    add_headers("X-API-Key" = "2145ca5b8db97d3cd55567b117b99ca1db23f0b75fb2c12986529aa5276ef7dc")
+    add_headers("X-API-Key" = "MY_OPENAQ_API")
   )
   content(result, "parsed") # returns the results from a string to a integer (JSON -> structured R list)
 }
