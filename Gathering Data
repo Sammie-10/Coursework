@@ -12,28 +12,28 @@ library(lubridate) # recognise ymd_hm
 ##RETRIEVING OPENAQ DATA##
 ################
 
-# creating a function to fetch a page
+# Creating a function to fetch a page
 fetch_page <- function(page_num) { 
   result <- GET( # get the results from OpenAQ
     "https://api.openaq.org/v3/sensors/2508/measurements/hourly", # 2508 = Sheffield Devonshire Green
     query = list( 
-      limit = 1000, # the maximum the API could retrieve for an individual page 
+      limit = 1000, # The maximum the API could retrieve for an individual page 
       parameter = "pm25", 
       datetime_from = "2024-01-01T00:00:00Z", 
       datetime_to = "2024-12-31T23:00:00Z",
-      page = page_num # assign and store the page number 
+      page = page_num # Assign and store the page number 
     ),
     add_headers("X-API-Key" = "MY_OPENAQ_API") # X-API-Key is the custom HTTP header used for API authorisation 
   )
-  content(result, "parsed") # returns the results from a string to an integer (JSON -> structured R list) 
+  content(result, "parsed") # Returns the results from a string to an integer (JSON -> structured R list) 
 }
 
 # Retrieval of all the OpenAQ data from 2024-01-01 - 2024-12-31
-first_page <- fetch_page(1) # get the first 1000 hourly measurements
-total_AQ <- first_page$meta$found # total datapoints including all pages 
-total_pages <- ceiling(total_AQ / 1000) # total pages 
-all_AQ_data <- map(1:total_pages, fetch_page) # loop through all the data found without manual input, calling the fetch_page function to easily get the API 
-all_AQ_results <- map(all_AQ_data, "results") %>% unlist(recursive = FALSE) # retrieval of all the 'results' data and combining it to a single list. Then pipelines the flattened data without flannening everything. 
+first_page <- fetch_page(1) # Get the first 1000 hourly measurements
+total_AQ <- first_page$meta$found # Total datapoints including all pages 
+total_pages <- ceiling(total_AQ / 1000) # Total pages 
+all_AQ_data <- map(1:total_pages, fetch_page) # Loop through all the data found without manual input, calling the fetch_page function to easily get the API 
+all_AQ_results <- map(all_AQ_data, "results") %>% unlist(recursive = FALSE) # Retrieval of all the 'results' data and combining it to a single list. Then pipelines the flattened data without flannening everything. 
 
 # Creating a table from all_AQ_results
 Sheff_AQ_df <- tibble(
