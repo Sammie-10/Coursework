@@ -46,3 +46,31 @@ Sheff_AQ_df <- tibble(
 )
 
 write.csv(Sheff_AQ_df, "Sheffield_PM25_Hourly.csv", row.names = FALSE) # Ready for excel without the row numbers as a first column 
+
+################
+##RETRIEVING OPENMETEO DATA##
+################
+
+openmeteo_url <- "https://archive-api.open-meteo.com/v1/archive" # Retrieving the link from OpenMeteo
+
+# Creating a request from OpenMeteo
+openmeteo <- GET(openmeteo_url, query = list(
+  latitude = 53.38, # Same location as 2508 = Sheffield Devonshire Green
+  longitude = -1.47, # Same location as 2508 = Sheffield Devonshire Green
+  hourly = "rain", 
+  start_date = "2024-01-01",
+  end_date   = "2024-12-31",
+  timezone = "UTC"
+))
+
+# Parse the JSON data 
+openmeteo_data <- content(openmeteo, as = "text", encoding = "UTF-8") # Encoding tells R how to read the characters.  
+openmeteo_flat <- fromJSON(openmeteo_flat, flatten = TRUE) # Converting JSON text to be readable for R by flattening the data 
+
+# Adding the flattened data into columns and rows 
+rain_df <- data.frame(
+  time = ymd_hm(openmeteo_flat$hourly$time),
+  rain_mm = openmeteo_flat$hourly$rain  # values are in millimetres (mm)
+)
+
+write.csv(precip, "Sheffield_Rain_Hourly.csv", row.names = FALSE) # Ready for excel without the row numbers as a first column
