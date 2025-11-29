@@ -1,0 +1,26 @@
+################
+##PACKAGES##
+################
+
+library(dplyr)
+
+################
+##CORRELATION ANALYSIS##
+################
+
+cor.test(master_df$rain_mm, master_df$pm25) # Result = 0.002890278 
+
+lm(pm25 ~ rain_mm, data = master_df) # A linear model. 9.07398 (PM2.5) on dry days and rain increases PM2.5 by 0.04833
+
+lagged_hourly <- master_df %>%
+  arrange(time) %>%
+  transmute(
+    time,
+    pm25,
+    rain_mm,
+    rain_lag24 = lag(rain_mm, 24) # rainfall changed to 24 hours earlier
+  )
+
+lm(pm25 ~ rain_lag24, data = lagged_hourly) # A linear model. 8.9756 PM2.5 on dry days and rain increases PM2.5 by 0.5439
+
+cor.test(lagged_hourly$rain_lag24, lagged_hourly$pm25) # Result = 0.03306066
