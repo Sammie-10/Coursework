@@ -1,1 +1,30 @@
+################
+##PACKAGES##
+################
 
+library(dplyr) # For the mutate function
+library(lubridate) # recognise ymd_hm
+
+################
+##TIME SERIES ANALYSIS##
+################
+
+# Air quality cleaning 
+clean_AQ <- Sheff_AQ_df %>%
+  mutate(
+    time = floor_date(ymd_hms(datetime_from_utc), "hour"), # Create a shared 'time' column by rounding to the same ymd_hms
+    pm25 = value # Changes the column name from value to pm25 
+  ) %>%
+  select(time, pm25) %>% 
+  # Remove duplicates if any exist
+  distinct(time, .keep_all = TRUE) # The distinct function removes duplicates in the time column. But .keep_all = TRUE makes sure the rest of the data is unaffected 
+
+# Rain cleaning 
+clean_rain <- rain_df %>%
+  mutate(
+    time = floor_date(time, "hour")
+  ) %>%
+  distinct(time, .keep_all = TRUE)
+
+# Combining the clean air and rain data together
+master_df <- inner_join(clean_AQ, clean_rain, by = "time") # The inner_join function keeps all the data that has the same ymd_hms point 
