@@ -28,3 +28,21 @@ fetch_page <- function(page_num) {
   content(result, "parsed") # returns the results from a string to an integer (JSON -> structured R list) 
 }
 
+# Retrieval of all the OpenAQ data from 2024-01-01 - 2024-12-31
+first_page <- fetch_page(1) # get the first 1000 hourly measurements
+total_AQ <- first_page$meta$found # total datapoints including all pages 
+total_pages <- ceiling(total_AQ / 1000) # total pages 
+all_AQ_data <- map(1:total_pages, fetch_page) # loop through all the data found without manual input, calling the fetch_page function to easily get the API 
+all_AQ_results <- map(all_AQ_data, "results") %>% unlist(recursive = FALSE) # retrieval of all the 'results' data and combining it to a single list. Then pipelines the flattened data without flannening everything. 
+
+# Creating a table from all_AQ_results
+Sheff_AQ_df <- tibble(
+  datetime_from_utc = map_chr(all_AQ_results, ~ .x$period$datetimeFrom$utc %||% NA_character_), # Extracts all the data from datetime_from_utc and creates a column. If data is missing it returns as N/A rather than crashing
+  datetime_to_utc = map_chr(all_AQ_results, ~ .x$period$datetimeTo$utc %||% NA_character_), # ~ introduces the formula and .x refers to the current element being processed (shorter for function(x))
+  parameter = map_chr(all_AQ_results, ~ .x$parameter$name %||% NA_character_),
+  units = map_chr(all_AQ_results, ~ .x$parameter$units %||% NA_character_),
+  value = map_dbl(all_AQ_results, ~ .x$value %||% NA_real_),
+  avg = map_dbl(all_AQ_results, ~ .x$summary$avg %||% NA_real_)
+)
+
+write.csv(Sheff_AQ_df, "Sheffield_PM25_Hourly.csv", row.names = FALSE) # Ready for excel without the row numbers as a first column 
