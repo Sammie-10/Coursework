@@ -1,0 +1,30 @@
+################
+##PACKAGES##
+################
+
+library(httr) # GET function 
+library(purrr) # map through pages 
+library(tibble) # create the air quality data frame 
+library(jsonlite) # convert JSON to readable text for R 
+library(lubridate) # recognise ymd_hm
+
+################
+##RETRIEVING OPENAQ DATA##
+################
+
+# creating a function to fetch a page
+fetch_page <- function(page_num) { 
+  result <- GET( # get the results from OpenAQ
+    "https://api.openaq.org/v3/sensors/2508/measurements/hourly", # 2508 = Sheffield Devonshire Green
+    query = list( 
+      limit = 1000, # the maximum the API could retrieve for an individual page 
+      parameter = "pm25", 
+      datetime_from = "2024-01-01T00:00:00Z", 
+      datetime_to = "2024-12-31T23:00:00Z",
+      page = page_num # assign and store the page number 
+    ),
+    add_headers("X-API-Key" = "MY_OPENAQ_API") # X-API-Key is the custom HTTP header used for API authorisation 
+  )
+  content(result, "parsed") # returns the results from a string to an integer (JSON -> structured R list) 
+}
+
