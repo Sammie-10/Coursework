@@ -3,6 +3,7 @@
 ################
 
 library(dplyr)
+library(lubridate)
 
 ################
 ##CORRELATION ANALYSIS##
@@ -30,3 +31,59 @@ lm(pm25 ~ rain_lag24, data = lagged_hourly) # A linear model. 8.9756 PM2.5 on dr
 
 # Correlation analysis on lagged values 
 cor.test(lagged_hourly$rain_lag24, lagged_hourly$pm25) # Result = 0.03306066
+
+################
+##CORRELATION SEASONAL ANALYSIS##
+################
+
+# Winter 
+correlation_winter <- master_df %>%
+  filter((time >= ymd_hms("2024-12-01 00:00:00") & time <= ymd_hms("2024-12-31 23:00:00")) |
+      (time >= ymd_hms("2024-01-01 00:00:00") & time <= ymd_hms("2024-02-29 23:00:00")))
+
+cor.test(correlation_winter$pm25, correlation_winter$rain_mm) # -0.02738096, p-value = 0.204 
+
+cor_winter_lag <- lagged_hourly %>%
+  filter((time >= ymd_hms("2024-12-01 00:00:00") & time <= ymd_hms("2024-12-31 23:00:00")) |
+           (time >= ymd_hms("2024-01-01 00:00:00") & time <= ymd_hms("2024-02-29 23:00:00")))
+
+cor.test(cor_winter_lag$pm25, cor_winter_lag$rain_lag24) # 0.04881255, p-value = 0.02427 (higher significance)
+
+# Spring
+correlation_spring <- master_df %>%
+  filter(time >= ymd_hms("2024-03-01 00:00:00") & 
+           time <= ymd_hms("2024-05-31 23:00:00"))
+
+cor.test(correlation_spring$pm25, correlation_spring$rain_mm) # -0.003821903, p-value = 0.03825323 (higher significance)
+
+cor_spring_lag <- lagged_hourly %>%
+  filter((time >= ymd_hms("2024-03-01 00:00:00") & 
+            time <= ymd_hms("2024-05-31 23:00:00")))
+
+cor.test(cor_spring_lag$pm25, cor_spring_lag$rain_lag24) # 0.005200425, p-value = 0.8086
+
+# Summer 
+correlation_summer <- master_df %>%
+  filter(time >= ymd_hms("2024-06-01 00:00:00") & 
+           time <= ymd_hms("2024-08-31 23:00:00"))
+
+cor.test(correlation_summer$pm25, correlation_summer$rain_mm) # 0.01792128, p-value = 0.0601890 (higher significance)
+
+cor_summer_lag <- lagged_hourly %>%
+  filter((time >= ymd_hms("2024-06-01 00:00:00") & 
+            time <= ymd_hms("2024-08-31 23:00:00")))
+
+cor.test(cor_summer_lag$pm25, cor_summer_lag$rain_lag24) # 0.03410714, p-value = 0.1142
+
+# Autumn
+correlation_autumn <- master_df %>%
+  filter(time >= ymd_hms("2024-09-01 00:00:00") & 
+           time <= ymd_hms("2024-11-30 23:00:00"))
+
+cor.test(correlation_autumn$pm25, correlation_autumn$rain_mm) # 0.03158429, p-value = 0.07349773
+
+cor_autumn_lag <- lagged_hourly %>%
+  filter((time >= ymd_hms("2024-09-01 00:00:00") & 
+            time <= ymd_hms("2024-11-30 23:00:00")))
+
+cor.test(cor_autumn_lag$pm25, cor_autumn_lag$rain_lag24) # 0.03976128, p-value = 0.06362 (higher significance)
