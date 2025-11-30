@@ -8,11 +8,14 @@ library(dplyr)
 ##CORRELATION ANALYSIS##
 ################
 
+# Correlation analysis
 cor.test(master_df$rain_mm, master_df$pm25) # Result = 0.002890278, p-value = 0.7881
 cor.test(master_df$rain_mm, master_df$pm25, method = c("spearman")) # poor p-value of 5.749e-10
 
+# Linear regression model
 lm(pm25 ~ rain_mm, data = master_df) # A linear model. 9.07398 (PM2.5) on dry days and rain increases PM2.5 by 0.04833
 
+# Lagging rain by 24 hours 
 lagged_hourly <- master_df %>%
   arrange(time) %>%
   transmute(
@@ -22,6 +25,8 @@ lagged_hourly <- master_df %>%
     rain_lag24 = lag(rain_mm, 24) # rainfall changed to 24 hours earlier
   )
 
+# Linear model on lagged values 
 lm(pm25 ~ rain_lag24, data = lagged_hourly) # A linear model. 8.9756 PM2.5 on dry days and rain increases PM2.5 by 0.5439
 
+# Correlation analysis on lagged values 
 cor.test(lagged_hourly$rain_lag24, lagged_hourly$pm25) # Result = 0.03306066
