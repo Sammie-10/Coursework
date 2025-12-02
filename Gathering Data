@@ -65,7 +65,7 @@ openmeteo <- GET(openmeteo_url, query = list(
 
 # Parse the JSON data 
 openmeteo_data <- content(openmeteo, as = "text", encoding = "UTF-8") # Encoding tells R how to read the characters.  
-openmeteo_flat <- fromJSON(openmeteo_flat, flatten = TRUE) # Converting JSON text to be readable for R by flattening the data 
+openmeteo_flat <- fromJSON(openmeteo_data, flatten = TRUE) # Converting JSON text to be readable for R by flattening the data 
 
 # Adding the flattened data into columns and rows 
 rain_df <- data.frame(
